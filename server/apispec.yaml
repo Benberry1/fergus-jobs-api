@@ -3,8 +3,8 @@ x-stoplight:
   id: a7ime4fyhchil
 info:
   version: "1.0"
-  title: Welcome to the Grade Scale API!
-  description: This API allows users to view the grade scale
+  title: Welcome to Fergus Jobs API!
+  description: This API allows users to view a users job list
   contact:
     name: Ben Berry
     url: benrhysberry.dev
@@ -18,7 +18,7 @@ servers:
 paths:
   /jobs:
     get:
-      summary: Returns the grade scale
+      summary: Returns the job list
       description: Get all jobs
       operationId: get-jobs
       responses:
