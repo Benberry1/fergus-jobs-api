@@ -1,20 +1,22 @@
+const { join } = require("path");
 const db = require("../db");
 
 module.exports = {
-  getJobs: async (page, limit) => {
+  getJobs: async (page, limit, sortBy, orderBy) => {
     try {
       const offset = limit * (page - 1);
+      const dbSortTable = sortBy === "full_name" ? "c" : "j";
       const result = await db.query(
         `
       SELECT 
-      j.id, 
+      j.id AS "jobId", 
       j.status, 
       j.date_created AS "dateCreated", 
       j.notes, 
       c.full_name AS "customer"
       FROM jobs j
       LEFT join customer c on j.customer_id = c.id
-      ORDER BY j.id
+      ORDER BY ${dbSortTable}.${sortBy} ${orderBy}
       LIMIT $1 OFFSET $2
             `,
         [limit, offset]
