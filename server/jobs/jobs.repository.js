@@ -12,8 +12,8 @@ module.exports = {
       j.id AS "jobId", 
       j.status, 
       j.date_created AS "dateCreated", 
-      j.notes, 
-      c.full_name AS "customer"
+      c.full_name AS "customer",
+      j.notes
       FROM jobs j
       LEFT join customer c on j.customer_id = c.id
       ORDER BY ${dbSortTable}.${sortBy} ${orderBy}
@@ -64,6 +64,20 @@ module.exports = {
         ) FROM jobs j LEFT JOIN customer c ON j.customer_id = c.id
         WHERE j.id = $1`,
         [id]
+      );
+      return result;
+    } catch (error) {
+      throw Error(error);
+    }
+  },
+  updateJobNotes: async (id, note) => {
+    try {
+      const result = await db.query(
+        `UPDATE jobs
+        SET notes = array_append(notes, $1)
+        WHERE id = $2
+        RETURNING id AS "jobId", status, date_created AS "dateCreated", (SELECT customer.full_name AS "customer" FROM customer WHERE customer.id = jobs.customer_id), notes`,
+        [note, id]
       );
       return result;
     } catch (error) {

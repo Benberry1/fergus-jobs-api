@@ -3,7 +3,7 @@ const router = express.Router();
 const Joi = require("joi");
 const jobsRepository = require("./jobs.repository");
 const queryParamValidationMiddleware = require("../middleware/queryParamValidationMiddleware");
-const { join } = require("path");
+const reqBodyValidationMiddleware = require("../middleware/reqBodyValidationMiddleware");
 
 const queryParamsSchema = Joi.object().keys({
   page: Joi.number().integer().min(1),
@@ -11,6 +11,10 @@ const queryParamsSchema = Joi.object().keys({
   sortBy: Joi.string().valid("jobId", "status", "dateCreated", "customer"),
   orderBy: Joi.string().uppercase().valid("ASC", "DESC"),
   status: Joi.string(),
+});
+
+const reqBodySchema = Joi.object().keys({
+  note: Joi.string().required(),
 });
 
 router.get(
@@ -73,5 +77,25 @@ router.get("/:id", async (req, res, next) => {
     next(error);
   }
 });
+
+router.put(
+  "/:id",
+  reqBodyValidationMiddleware(reqBodySchema),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const body = req.body;
+      const updatedJob = await jobsRepository.updateJobNotes(id, body.note);
+      if (updatedJob.rowCount === 0) {
+        const error = new Error("Sorry, the todo id provided does not exist");
+        error.status = 404;
+        next(error);
+      }
+      return res.status(200).json(updatedJob.rows[0]);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 module.exports = router;
