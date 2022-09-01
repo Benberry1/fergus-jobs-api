@@ -1,4 +1,4 @@
-const queryParamValidationMiddleware = (schema) => (req, res, next) => {
+const reqBodyValidationMiddleware = (schema) => (req, res, next) => {
   const { error } = schema.validate(req.body);
 
   if (error) {
@@ -11,4 +11,4 @@ const queryParamValidationMiddleware = (schema) => (req, res, next) => {
   }
 };
 
-module.exports = queryParamValidationMiddleware;
+module.exports = reqBodyValidationMiddleware;
