@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
-CREATE TYPE status AS ENUM ('scheduled', 'active', 'invoicing', 'to price', 'completed');
+CREATE TYPE status AS ENUM ('active', 'completed', 'invoicing', 'scheduled', 'to price');
 
 CREATE TABLE customer (
     id SERIAL PRIMARY KEY,
