@@ -10,6 +10,7 @@ const queryParamsSchema = Joi.object().keys({
   limit: Joi.number().integer().min(1),
   sortBy: Joi.string().valid("jobId", "status", "dateCreated", "customer"),
   orderBy: Joi.string().uppercase().valid("ASC", "DESC"),
+  status: Joi.string(),
 });
 
 router.get(
@@ -17,7 +18,7 @@ router.get(
   queryParamValidationMiddleware(queryParamsSchema),
   async (req, res, next) => {
     try {
-      const { page, limit, sortBy, orderBy } = req.query;
+      const { page, limit, sortBy, orderBy, status } = req.query;
       const sortByMap = {
         jobId: "id",
         status: "status",
@@ -28,6 +29,7 @@ router.get(
       const defaultLimit = limit ? parseInt(limit) : 5;
       const defaultSortBy = sortBy ? sortByMap[sortBy] : "id";
       const defaultOrderBy = orderBy ? orderBy : "ASC";
+
       const totalJobs = await jobsRepository.getTotalJobs();
       const jobs = await jobsRepository.getJobs(
         defaultPage,
@@ -35,8 +37,16 @@ router.get(
         defaultSortBy,
         defaultOrderBy
       );
+
+      let jobResult;
+      if (status) {
+        jobResult = jobs.filter((job) => job.status === status);
+      } else {
+        jobResult = jobs;
+      }
+
       const responseObject = {
-        jobs: jobs,
+        jobs: jobResult,
         currentPage: defaultPage,
         totalPages: Math.ceil(totalJobs / defaultLimit),
         itemsPerPage: defaultLimit,
