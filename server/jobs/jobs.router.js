@@ -59,4 +59,19 @@ router.get(
   }
 );
 
+router.get("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const job = await jobsRepository.getJobById(id);
+    if (job.rowCount === 0) {
+      const error = new Error("Sorry, the todo id provided does not exist");
+      error.status = 404;
+      next(error);
+    }
+    return res.status(200).json(job.rows[0].json_build_object);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;

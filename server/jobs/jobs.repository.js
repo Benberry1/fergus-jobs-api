@@ -38,4 +38,36 @@ module.exports = {
       throw Error(error);
     }
   },
+  getJobById: async (id) => {
+    try {
+      const result = await db.query(
+        `SELECT json_build_object(
+            'job', json_build_object(
+                'jobId', j.id, 
+                'status', j.status, 
+                'dateCreated', j.date_created, 
+                'notes', j.notes,
+                'customer', json_build_object(
+                    'name', c.full_name,
+                    'email', c.email,
+                    'phone', c.phone,
+                    'address', json_build_object(
+                        'street', c.street,
+                        'suburb', c.suburb,
+                        'city', c.city,
+                        'region', c.region,
+                        'country', c.country,
+                        'postcode', c.postcode
+                    )
+                )
+            )
+        ) FROM jobs j LEFT JOIN customer c ON j.customer_id = c.id
+        WHERE j.id = $1`,
+        [id]
+      );
+      return result;
+    } catch (error) {
+      throw Error(error);
+    }
+  },
 };
