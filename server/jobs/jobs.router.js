@@ -10,11 +10,24 @@ const queryParamsSchema = Joi.object().keys({
   limit: Joi.number().integer().min(1),
   sortBy: Joi.string().valid("jobId", "status", "dateCreated", "customer"),
   orderBy: Joi.string().uppercase().valid("ASC", "DESC"),
-  status: Joi.string(),
+  status: Joi.string().valid(
+    "active",
+    "completed",
+    "invoicing",
+    "scheduled",
+    "to price"
+  ),
 });
 
 const reqBodySchema = Joi.object().keys({
-  note: Joi.string().required(),
+  note: Joi.string(),
+  status: Joi.string().valid(
+    "active",
+    "completed",
+    "invoicing",
+    "scheduled",
+    "to price"
+  ),
 });
 
 router.get(
@@ -85,7 +98,7 @@ router.put(
     try {
       const { id } = req.params;
       const body = req.body;
-      const updatedJob = await jobsRepository.updateJobNotes(id, body.note);
+      const updatedJob = await jobsRepository.updateJob(id, body);
       if (updatedJob.rowCount === 0) {
         const error = new Error("Sorry, the job id provided does not exist");
         error.status = 404;

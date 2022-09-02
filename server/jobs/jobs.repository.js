@@ -69,14 +69,16 @@ module.exports = {
       throw Error(error);
     }
   },
-  updateJobNotes: async (id, note) => {
+  updateJob: async (id, body) => {
     try {
+      const status = body.status;
+      const note = body.note;
       const result = await db.query(
         `UPDATE jobs
-        SET notes = array_append(notes, $1)
-        WHERE id = $2
+        SET status = $1, notes = array_append(notes, $2)
+        WHERE id = $3
         RETURNING id AS "jobId", status, date_created AS "dateCreated", notes, (SELECT customer.full_name AS "customer" FROM customer WHERE customer.id = jobs.customer_id)`,
-        [note, id]
+        [status, note, id]
       );
       return result;
     } catch (error) {
