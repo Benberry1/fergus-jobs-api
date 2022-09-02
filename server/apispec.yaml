@@ -27,46 +27,93 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Job"
+                type: object
+                x-examples:
+                  example-1:
+                    jobs:
+                      - jobId: 1
+                        status: completed
+                        dateCreated: "2022-06-14T23:59:21.000Z"
+                        customer: Dwight Schrute
+                        notes:
+                          - Job complete 2nd June 22
+                          - New note
+                          - New note
+                          - New note
+                          - Updated Note 8
+                          - vrvrv
+                      - jobId: 2
+                        status: completed
+                        dateCreated: "2022-06-24T23:59:21.000Z"
+                        customer: Jim Halpert
+                        notes:
+                          - Completed job 01/07/22
+                          - Updated Note 8
+                      - jobId: 3
+                        status: invoicing
+                        dateCreated: "2022-07-12T23:59:21.000Z"
+                        customer: Michael Scott
+                        notes:
+                          - Called customer and set job for 20th July
+                          - Customer called and rescheduled to 1st August
+                          - Job completed 20th August
+                      - jobId: 4
+                        status: active
+                        dateCreated: "2022-07-19T23:59:21.000Z"
+                        customer: Dwight Schrute
+                        notes:
+                          - Call customer to organise a time to meet and price
+                          - Job schedule for 1st September
+                      - jobId: 5
+                        status: to price
+                        dateCreated: "2022-08-20T23:59:21.000Z"
+                        customer: Stanley
+                        notes:
+                          - Call customer to organise a time to meet and price
+                          - Updated Note 8
+                    currentPage: 1
+                    totalPages: 2
+                    itemsPerPage: 5
+                    totalItems: 6
+                properties:
+                  jobs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Job"
+                  currentPage:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  itemsPerPage:
+                    type: integer
+                  totalItems:
+                    type: integer
+                required:
+                  - jobs
+                  - currentPage
+                  - totalPages
+                  - itemsPerPage
+                  - totalItems
               examples:
                 example-1:
                   value:
-                    - id: 1
-                      status: scheduled
-                      dateCreated: "2019-08-24T14:15:22Z"
-                      notes:
-                        - string
-                      customer:
-                        customer:
-                          name: string
-                          email: user@example.com
-                          phone: "+64223215629"
-                          address:
-                            street: string
-                            suburb: string
-                            city: string
-                            region: string
-                            country: string
-                            postcode: 9999
-                    - id: 2
-                      status: active
-                      dateCreated: "2019-08-24T14:15:22Z"
-                      notes:
-                        - string
-                      customer:
-                        customer:
-                          name: string
-                          email: user@example.com
-                          phone: "+64223215622"
-                          address:
-                            street: string
-                            suburb: string
-                            city: string
-                            region: string
-                            country: string
-                            postcode: 9999
+                    jobs:
+                      - jobId: 1
+                        status: completed
+                        dateCreated: "2022-06-14T23:59:21.000Z"
+                        customer: Dwight Schrute
+                        notes:
+                          - Job complete 2nd June 22
+                      - jobId: 2
+                        status: completed
+                        dateCreated: "2022-06-24T23:59:21.000Z"
+                        customer: Jim Halpert
+                        notes:
+                          - Completed job 01/07/22
+                    currentPage: 1
+                    totalPages: 3
+                    itemsPerPage: 2
+                    totalItems: 6
         "500":
           description: Internal Server Error
           content:
@@ -112,8 +159,13 @@ paths:
               - to price
               - completed
           in: query
+          name: orderBy
+          description: Determines order of sortBy query
+        - schema:
+            type: string
+          in: query
           name: status
-          description: Filters results by status
+          description: Filter by status
     parameters: []
   "/jobs/:id":
     get:
@@ -124,27 +176,29 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Job"
+                type: object
+                properties:
+                  job:
+                    $ref: "#/components/schemas/JobById"
               examples:
                 example-1:
                   value:
-                    id: 1
+                    jobId: 1
                     status: scheduled
                     dateCreated: "2019-08-24T14:15:22Z"
                     notes:
                       - string
                     customer:
-                      customer:
-                        name: string
-                        email: user@example.com
-                        phone: "0223215629"
-                        address:
-                          street: string
-                          suburb: string
-                          city: string
-                          region: string
-                          country: string
-                          postcode: 9999
+                      name: John Smith
+                      email: john.smith@gmail.com
+                      phone: "0224561789"
+                      address:
+                        street: 1 Fake Street
+                        suburb: Taradale
+                        city: Napier
+                        region: Hawkes Bay
+                        country: New Zealand
+                        postcode: 4112
         "400":
           description: Bad Request
           content:
@@ -184,17 +238,6 @@ paths:
           in: query
           name: id
           description: A specific job id
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                note:
-                  type: string
-              required:
-                - note
-        description: Append a note to the job database
     parameters: []
     put:
       summary: ""
@@ -209,23 +252,12 @@ paths:
               examples:
                 example-1:
                   value:
-                    id: 1
+                    jobId: 0
                     status: scheduled
                     dateCreated: "2019-08-24T14:15:22Z"
                     notes:
-                      - Example note
-                    customer:
-                      customer:
-                        name: string
-                        email: user@example.com
-                        phone: "0223215625"
-                        address:
-                          street: string
-                          suburb: string
-                          city: string
-                          region: string
-                          country: string
-                          postcode: 9999
+                      - string
+                    customer: string
         "400":
           description: Bad Request
           content:
@@ -272,6 +304,8 @@ paths:
               properties:
                 notes:
                   type: string
+              required:
+                - notes
             examples:
               example-1:
                 value:
@@ -287,6 +321,8 @@ components:
       x-examples:
         example-1:
           message: Internal Server Error
+      title: Error
+      description: Model of error responses
     Job:
       title: Job
       x-stoplight:
@@ -295,22 +331,14 @@ components:
       description: Job & Customer information
       x-examples:
         example-1:
-          id: 1
+          jobId: 1
           status: scheduled
-          dateCreated: "2019-08-24T14:15:22Z"
-          customer:
-            name: string
-            email: string
-            phone: string
-            address:
-              street: string
-              suburb: string
-              city: string
-              region: string
-              country: string
-              postcode: 4112
+          dateCreated: "2022-06-14 23:59:21"
+          customer: John Smith
+          notes:
+            - Job created
       properties:
-        id:
+        jobId:
           type: integer
         status:
           type: string
@@ -329,65 +357,96 @@ components:
           items:
             type: string
         customer:
-          $ref: "#/components/schemas/Customer"
+          type: string
       required:
-        - id
+        - jobId
         - status
         - dateCreated
         - customer
     Customer:
-      type: object
       x-examples:
         example-1:
           customer:
-            name: string
-            email: string
-            phone: string
+            name: John Smith
+            email: john.smith@gmail.com
+            phone: "0224561789"
             address:
-              street: string
-              suburb: string
-              city: string
-              region: string
-              country: string
+              street: 1 Fake Street
+              suburb: Taradale
+              city: Napier
+              region: Hawkes Bay
+              country: New Zealand
               postcode: 4112
+      title: Customer
+      description: Model of customer data
+      type: object
       properties:
-        customer:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
           type: object
-          properties:
-            name:
-              type: string
-            email:
-              type: string
-              format: email
-            phone:
-              type: string
-              maxLength: 12
-              pattern: '^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$'
-            address:
-              type: object
-              required:
-                - street
-                - city
-                - region
-                - country
-                - postcode
-              properties:
-                street:
-                  type: string
-                suburb:
-                  type: string
-                  nullable: true
-                city:
-                  type: string
-                region:
-                  type: string
-                country:
-                  type: string
-                postcode:
-                  type: integer
-                  maximum: 9999
           required:
-            - name
-            - email
-            - phone
-            - address
+            - street
+            - city
+            - region
+            - country
+            - postcode
+          properties:
+            street:
+              type: string
+            suburb:
+              type: string
+            city:
+              type: string
+            region:
+              type: string
+            country:
+              type: string
+            postcode:
+              type: integer
+              maximum: 9999
+      required:
+        - name
+        - email
+        - phone
+        - address
+    JobById:
+      x-examples:
+        example-1:
+          job:
+            jobId: 1
+            status: completed
+            dateCreated: "2022-06-14T23:59:21+00:00"
+            notes:
+              - Job complete 2nd June 22
+            customer:
+              name: Dwight Schrute
+              email: dwight.schrute@beetfarms.com
+              phone: "0213456782"
+              address:
+                street: 1 King Street
+                suburb: Taradale
+                city: Napier
+                region: Hawkes Bay
+                country: New Zealand
+                postcode: 4112
+      type: object
+      title: JobById
+      description: Specific job by id response
+      properties:
+        jobId:
+          type: integer
+        status:
+          type: string
+        dateCreated:
+          type: string
+        notes:
+          type: array
+          items:
+            type: string
+        customer:
+          $ref: "#/components/schemas/Customer"

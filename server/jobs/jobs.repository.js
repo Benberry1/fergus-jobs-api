@@ -11,8 +11,8 @@ module.exports = {
       j.id AS "jobId", 
       j.status, 
       j.date_created AS "dateCreated", 
-      c.full_name AS "customer",
-      j.notes
+      j.notes,
+      c.full_name AS "customer"
       FROM jobs j
       LEFT join customer c on j.customer_id = c.id
       ORDER BY ${dbSortTable}.${sortBy} ${orderBy}
@@ -75,7 +75,7 @@ module.exports = {
         `UPDATE jobs
         SET notes = array_append(notes, $1)
         WHERE id = $2
-        RETURNING id AS "jobId", status, date_created AS "dateCreated", (SELECT customer.full_name AS "customer" FROM customer WHERE customer.id = jobs.customer_id), notes`,
+        RETURNING id AS "jobId", status, date_created AS "dateCreated", notes, (SELECT customer.full_name AS "customer" FROM customer WHERE customer.id = jobs.customer_id)`,
         [note, id]
       );
       return result;
